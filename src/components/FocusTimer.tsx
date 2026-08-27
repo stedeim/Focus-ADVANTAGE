@@ -1,67 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Flame, Shield } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { SoundscapePlayer } from './SoundscapePlayer';
-import { BoundaryOverlay } from './BoundaryOverlay';
+import React, { useEffect, useRef, useState } from 'react';
+import { Pause, Play, RotateCcw, Flame } from 'lucide-react';
+import { motion } from 'motion/react';
 import { trackFocusBlockCompletion } from '../services/activityTracker';
 
 interface FocusTimerProps {
   mission?: string | null;
+  onSessionComplete?: () => void;
 }
 
-export const FocusTimer: React.FC<FocusTimerProps> = ({ mission }) => {
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+const DEFAULT_MINUTES = 25;
+const TOTAL_SECONDS = DEFAULT_MINUTES * 60;
+
+const readStoredStreak = () => {
+  const saved = localStorage.getItem('focus_streak');
+  const parsed = Number.parseInt(saved || '0', 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const readStoredUserId = () => {
+  const rawUser = localStorage.getItem('focus_user');
+  if (!rawUser) return 'guest';
+
+  try {
+    const user = JSON.parse(rawUser) as { email?: string };
+    return user.email || 'guest';
+  } catch {
+    return 'guest';
+  }
+};
+
+export const FocusTimer: React.FC<FocusTimerProps> = ({ mission, onSessionComplete }) => {
+  const completionHandled = useRef(false);
+
+  const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
   const [isActive, setIsActive] = useState(false);
-  const [showBoundary, setShowBoundary] = useState(false);
-  const [preset, setPreset] = useState(25);
-  const [streak, setStreak] = useState(() => {
-    const saved = localStorage.getItem('focus_streak');
-    return saved ? parseInt(saved, 10) : 0;
-  });
-  const [showFlameEffect, setShowFlameEffect] = useState(false);
+  const [streak, setStreak] = useState(() => readStoredStreak());
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
-      setShowBoundary(false);
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      localStorage.setItem('focus_streak', newStreak.toString());
-      setShowFlameEffect(true);
-      setTimeout(() => setShowFlameEffect(false), 3000);
+    if (!isActive) return;
 
-      // Track activity
-      const user = localStorage.getItem('focus_user');
-      const userId = user ? JSON.parse(user).email : 'guest';
-      trackFocusBlockCompletion(userId);
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [isActive]);
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      completionHandled.current = false;
+      return;
     }
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft, streak]);
 
-  const toggleTimer = () => {
-    const newActive = !isActive;
-    setIsActive(newActive);
-    if (newActive) {
-      setShowBoundary(true);
-    }
-  };
+    if (!isActive || completionHandled.current) return;
 
-  const resetTimer = () => {
+    completionHandled.current = true;
     setIsActive(false);
-    setShowBoundary(false);
-    setTimeLeft(preset * 60);
-  };
+    setTimeLeft(TOTAL_SECONDS);
 
-  const handlePreset = (mins: number) => {
-    setPreset(mins);
-    setIsActive(false);
-    setTimeLeft(mins * 60);
-  };
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    localStorage.setItem('focus_streak', String(newStreak));
+
+    trackFocusBlockCompletion(readStoredUserId());
+    onSessionComplete?.();
+  }, [isActive, onSessionComplete, streak, timeLeft]);
+
+  const progress = 1 - timeLeft / TOTAL_SECONDS;
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -69,11 +74,30 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({ mission }) => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = 1 - timeLeft / (preset * 60);
+  const toggleTimer = () => {
+    if (timeLeft === 0) {
+      setTimeLeft(TOTAL_SECONDS);
+    }
+
+    setIsActive((prev) => !prev);
+  };
+
+  const resetTimer = () => {
+    setIsActive(false);
+    setTimeLeft(TOTAL_SECONDS);
+    completionHandled.current = false;
+  };
+
+  const statusLabel = isActive ? 'Deep Work' : timeLeft === TOTAL_SECONDS ? 'Ready' : 'Paused';
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-12 py-8">
-      {/* Timer Circle */}
+    <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-10 py-8 text-center">
+      <div className="space-y-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold/70">Focus Session</p>
+        <h2 className="text-3xl font-bold text-white">{mission || "Set today's mission first"}</h2>
+        <p className="text-sm text-white/40">One 25-minute block. Start, focus, finish, review.</p>
+      </div>
+
       <div className="relative w-72 h-72 flex items-center justify-center">
         <svg className="w-full h-full -rotate-90">
           <circle
@@ -93,14 +117,14 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({ mission }) => {
             strokeWidth="4"
             strokeDasharray={2 * Math.PI * 130}
             animate={{ strokeDashoffset: 2 * Math.PI * 130 * (1 - progress) }}
-            transition={{ duration: 1, ease: "linear" }}
+            transition={{ duration: 1, ease: 'linear' }}
             strokeLinecap="round"
             className="drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"
           />
         </svg>
-        
+
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span 
+          <motion.span
             key={timeLeft}
             initial={{ opacity: 0.8 }}
             animate={{ opacity: 1 }}
@@ -109,117 +133,39 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({ mission }) => {
             {formatTime(timeLeft)}
           </motion.span>
           <span className="text-[10px] font-bold text-gold uppercase tracking-[0.3em] mt-4">
-            {isActive ? 'Deep Work' : 'Ready'}
+            {statusLabel}
           </span>
         </div>
-
-        {/* Subtle background glow */}
-        <AnimatePresence>
-          {isActive && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="absolute inset-0 bg-gold/5 blur-3xl rounded-full -z-10"
-            />
-          )}
-        </AnimatePresence>
       </div>
 
-      {/* Presets */}
-      <div className="flex gap-3">
-        {[25, 50, 90].map((mins) => (
-          <button
-            key={mins}
-            onClick={() => handlePreset(mins)}
-            className={`px-8 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${
-              preset === mins 
-                ? 'bg-gold text-navy-dark shadow-lg' 
-                : 'bg-white/5 text-white/40 border border-white/5 hover:border-gold/30'
-            }`}
-          >
-            {mins}m
-          </button>
-        ))}
-      </div>
+      <div className="flex items-center gap-5">
+        <button
+          onClick={resetTimer}
+          className="w-12 h-12 rounded-full bg-navy-medium border border-white/5 text-white/40 flex items-center justify-center hover:text-gold transition-all shadow-sm"
+          aria-label="Reset timer"
+        >
+          <RotateCcw size={20} />
+        </button>
 
-      {/* Controls */}
-      <div className="flex flex-col items-center gap-8">
-        <div className="flex items-center gap-10">
-          <button
-            onClick={resetTimer}
-            className="w-12 h-12 rounded-full bg-navy-medium border border-white/5 text-white/40 flex items-center justify-center hover:text-gold transition-all shadow-sm"
-          >
-            <RotateCcw size={20} />
-          </button>
-          
-          <button
-            onClick={toggleTimer}
-            className="w-20 h-20 rounded-full bg-gold text-navy-dark flex items-center justify-center hover:scale-105 transition-all shadow-xl"
-          >
-            {isActive ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
-          </button>
+        <button
+          onClick={toggleTimer}
+          className="w-20 h-20 rounded-full bg-gold text-navy-dark flex items-center justify-center hover:scale-105 transition-all shadow-xl"
+          aria-label={isActive ? 'Pause timer' : 'Start timer'}
+        >
+          {isActive ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
+        </button>
 
-          <div className="w-12 h-12 flex items-center justify-center relative">
-            <AnimatePresence>
-              {showFlameEffect && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5, y: 0 }}
-                  animate={{ opacity: 1, scale: 1.5, y: -20 }}
-                  exit={{ opacity: 0, scale: 2, y: -40 }}
-                  className="absolute text-gold font-bold pointer-events-none"
-                >
-                  +1
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div className="flex flex-col items-center gap-1">
-              <div className="relative">
-                <Flame 
-                  size={20} 
-                  className={isActive || showFlameEffect ? "text-gold animate-pulse" : "text-white/10"} 
-                  fill={streak > 0 ? "currentColor" : "none"}
-                />
-                {streak > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-gold text-navy-dark text-[8px] font-bold px-1 rounded-full min-w-[14px] text-center shadow-lg">
-                    {streak}
-                  </span>
-                )}
-              </div>
-              <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter">Streak</span>
-            </div>
-          </div>
-        </div>
-
-        {isActive && !showBoundary && (
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => setShowBoundary(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] font-bold uppercase tracking-widest hover:bg-gold/20 transition-all"
-          >
-            <Shield size={12} />
-            Re-enter Boundary Mode
-          </motion.button>
-        )}
-      </div>
-
-      {/* Soundscape Player */}
-      <div className="w-full max-w-sm">
-        <SoundscapePlayer autoPlay={isActive} />
-      </div>
-
-      {/* Boundary Overlay */}
-      <AnimatePresence>
-        {showBoundary && isActive && (
-          <BoundaryOverlay 
-            timeLeft={formatTime(timeLeft)}
-            progress={progress}
-            onExit={() => setShowBoundary(false)}
-            task={mission || undefined}
+        <div className="w-12 h-12 flex flex-col items-center justify-center">
+          <Flame
+            size={20}
+            className={streak > 0 ? 'text-gold' : 'text-white/10'}
+            fill={streak > 0 ? 'currentColor' : 'none'}
           />
-        )}
-      </AnimatePresence>
+          <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter mt-1">{streak || 0}</span>
+        </div>
+      </div>
+
+      <div className="text-xs text-white/30 uppercase tracking-[0.25em]">{DEFAULT_MINUTES}-minute session</div>
     </div>
   );
 };

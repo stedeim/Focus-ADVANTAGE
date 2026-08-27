@@ -1,71 +1,27 @@
 import React from 'react';
-import { LayoutDashboard, Timer, MessageSquare, Shield, User, Calendar, BarChart2, Users, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Timer } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  currentWeek: number;
-  avatarUrl?: string | null;
-  onAvatarUpload?: (url: string) => void;
+  activeTab: 'dashboard' | 'timer';
+  setActiveTab: (tab: 'dashboard' | 'timer') => void;
 }
 
 const navItems = [
-  { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-  { id: 'planner', label: 'Planner', icon: Calendar },
-  { id: 'timer', label: 'Focus', icon: Timer },
-  { id: 'circle', label: 'Circle', icon: Users },
-  { id: 'coach', label: 'Coach', icon: MessageSquare },
-  { id: 'vault', label: 'Vault', icon: Shield },
-  { id: 'analytics', label: 'Stats', icon: BarChart2 },
-  { id: 'debt-calculator', label: 'Debt Calc', icon: AlertTriangle },
+  { id: 'dashboard' as const, label: 'Home', icon: LayoutDashboard },
+  { id: 'timer' as const, label: 'Focus', icon: Timer },
 ];
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, currentWeek, avatarUrl, onAvatarUpload }) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onAvatarUpload) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onAvatarUpload(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-navy-dark text-white overflow-hidden relative">
-      {/* Immersive Background */}
+    <div className="flex flex-col md:flex-row min-h-screen bg-navy-dark text-white overflow-hidden relative">
       <div className="atmosphere" />
 
-      {/* Progress Bar (Global Context) */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-white/5 z-50">
-        <motion.div 
-          initial={{ width: 0 }}
-          animate={{ width: '32%' }}
-          className="h-full bg-gold shadow-[0_0_10px_rgba(234,179,8,0.5)]"
-        />
-      </div>
-
-      {/* Sidebar Navigation (Desktop) */}
       <nav className="hidden md:flex flex-col w-64 bg-navy-dark/80 backdrop-blur-2xl border-r border-white/5 z-20 p-6">
         <div className="mb-12">
-          <h1 className="text-2xl font-serif italic text-gold tracking-tight">
-            Focus Advantage
-          </h1>
-          <div className="flex items-center gap-1.5 mt-2">
-            <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
-              Phase {currentWeek} of 6
-            </span>
-          </div>
+          <h1 className="text-2xl font-serif italic text-gold tracking-tight">Focus Advantage</h1>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mt-2">MVP Mode</p>
         </div>
 
         <div className="flex-1 space-y-2">
@@ -74,17 +30,15 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group ${
-                activeTab === item.id 
-                  ? 'bg-gold/10 text-gold border border-gold/20' 
+                activeTab === item.id
+                  ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60 hover:bg-white/5 border border-transparent'
               }`}
             >
               <item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-              <span className="text-xs font-bold uppercase tracking-widest">
-                {item.label}
-              </span>
+              <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
               {activeTab === item.id && (
-                <motion.div 
+                <motion.div
                   layoutId="nav-indicator-desktop"
                   className="ml-auto w-1.5 h-1.5 bg-gold rounded-full shadow-[0_0_10px_rgba(234,179,8,0.8)]"
                 />
@@ -92,81 +46,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             </button>
           ))}
         </div>
-
-        <div className="mt-auto pt-6 border-t border-white/5 flex items-center gap-4">
-          <div className="relative">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept="image/*" 
-              className="hidden" 
-            />
-            <button 
-              onClick={handleAvatarClick}
-              className="w-10 h-10 rounded-full bg-navy-medium border border-white/10 flex items-center justify-center overflow-hidden shadow-lg hover:border-gold/50 transition-all group"
-            >
-              {avatarUrl ? (
-                <img 
-                  src={avatarUrl} 
-                  alt="Avatar" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <User size={18} className="text-gold/60 group-hover:text-gold transition-colors" />
-              )}
-            </button>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-white uppercase tracking-widest">User Profile</span>
-            <span className="text-[8px] text-white/40 uppercase tracking-widest">Settings</span>
-          </div>
-        </div>
       </nav>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Header (Mobile Only) */}
-        <header className="md:hidden h-20 flex items-center justify-between px-6 z-10">
+        <header className="md:hidden h-20 flex items-center px-6 z-10">
           <div className="flex flex-col">
-            <h1 className="text-2xl font-serif italic text-gold tracking-tight">
-              Focus Advantage
-            </h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
-                Phase {currentWeek} of 6
-              </span>
-            </div>
-          </div>
-          
-          <div className="relative">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept="image/*" 
-              className="hidden" 
-            />
-            <button 
-              onClick={handleAvatarClick}
-              className="w-10 h-10 rounded-full bg-navy-medium border border-white/10 flex items-center justify-center overflow-hidden shadow-lg hover:border-gold/50 transition-all group"
-            >
-              {avatarUrl ? (
-                <img 
-                  src={avatarUrl} 
-                  alt="Avatar" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <User size={18} className="text-gold/60 group-hover:text-gold transition-colors" />
-              )}
-            </button>
+            <h1 className="text-2xl font-serif italic text-gold tracking-tight">Focus Advantage</h1>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mt-0.5">MVP Mode</p>
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="flex-1 overflow-y-auto px-6 pb-32 md:pb-12 pt-4 z-10 scrollbar-hide">
           <motion.div
             key={activeTab}
@@ -179,28 +68,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
           </motion.div>
         </main>
 
-        {/* Bottom Navigation (Mobile Only) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-24 bg-navy-dark/80 backdrop-blur-2xl border-t border-white/5 px-4 flex items-center justify-between z-20">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-24 bg-navy-dark/80 backdrop-blur-2xl border-t border-white/5 px-4 flex items-center justify-around z-20">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className="relative flex flex-col items-center gap-1 group w-14"
             >
-              <div className={`p-2 rounded-2xl transition-all duration-300 ${
-                activeTab === item.id 
-                  ? 'text-gold scale-110' 
-                  : 'text-white/20 hover:text-white/40'
-              }`}>
+              <div className={`p-2 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-gold scale-110' : 'text-white/20 hover:text-white/40'}`}>
                 <item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />
               </div>
-              <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${
-                activeTab === item.id ? 'opacity-100 text-gold' : 'opacity-0'
-              }`}>
+              <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${activeTab === item.id ? 'opacity-100 text-gold' : 'opacity-0'}`}>
                 {item.label}
               </span>
               {activeTab === item.id && (
-                <motion.div 
+                <motion.div
                   layoutId="nav-indicator-mobile"
                   className="absolute -top-2 w-1.5 h-1.5 bg-gold rounded-full shadow-[0_0_10px_rgba(234,179,8,0.8)]"
                 />
