@@ -1,11 +1,14 @@
 import React from 'react';
-import { LayoutDashboard, Timer } from 'lucide-react';
+import { LayoutDashboard, LogOut, Timer } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: 'dashboard' | 'timer';
   setActiveTab: (tab: 'dashboard' | 'timer') => void;
+  userLabel?: string;
+  isGuest?: boolean;
+  onSignOut?: () => void;
 }
 
 const navItems = [
@@ -13,7 +16,14 @@ const navItems = [
   { id: 'timer' as const, label: 'Focus', icon: Timer },
 ];
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  activeTab,
+  setActiveTab,
+  userLabel,
+  isGuest = false,
+  onSignOut,
+}) => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-navy-dark text-white overflow-hidden relative">
       <div className="atmosphere" />
@@ -46,14 +56,45 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             </button>
           ))}
         </div>
+
+        {onSignOut && (
+          <div className="mt-auto pt-6 border-t border-white/5 space-y-3">
+            <div className="px-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">
+                {isGuest ? 'Guest session' : 'Signed in'}
+              </p>
+              <p className="text-xs text-white/55 truncate">{userLabel || (isGuest ? 'Local only' : 'Account')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/40 hover:text-gold hover:bg-white/5 transition-colors"
+            >
+              <LogOut size={16} />
+              <span className="text-xs font-bold uppercase tracking-widest">Sign out</span>
+            </button>
+          </div>
+        )}
       </nav>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="md:hidden h-20 flex items-center px-6 z-10">
-          <div className="flex flex-col">
+        <header className="md:hidden h-20 flex items-center justify-between gap-3 px-6 z-10">
+          <div className="flex flex-col min-w-0">
             <h1 className="text-2xl font-serif italic text-gold tracking-tight">Focus Advantage</h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mt-0.5">MVP Mode</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mt-0.5 truncate">
+              {isGuest ? 'Guest · MVP Mode' : userLabel || 'MVP Mode'}
+            </p>
           </div>
+          {onSignOut && (
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="shrink-0 w-10 h-10 rounded-2xl border border-white/10 bg-white/5 text-white/50 flex items-center justify-center hover:text-gold hover:border-gold/20 transition-colors"
+              aria-label="Sign out"
+            >
+              <LogOut size={16} />
+            </button>
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto px-6 pb-32 md:pb-12 pt-4 z-10 scrollbar-hide">

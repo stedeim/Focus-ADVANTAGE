@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Layout } from './components/Layout';
 import { FocusTimer } from './components/FocusTimer';
 import { Dashboard } from './components/Dashboard';
@@ -11,51 +11,48 @@ import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
 import { Paywall } from './components/Paywall';
 import { OnboardingAnswers } from './types/onboarding';
-import { updateLastLogin } from './services/activityTracker';
+import { updateLastLogin, trackFocusBlockCompletion } from './services/activityTracker';
 import { fetchBillingStatus } from './services/billing';
+import { useSupabaseSession } from './hooks/useSupabaseSession';
+import { displayNameFromUser } from './lib/supabaseClient';
+import {
+  STORAGE_KEYS,
+  cloudMigratedKey,
+  readBoolean,
+  readOnboardingAnswers,
+  readStoredUser,
+  readStreak,
+  readString,
+  writeBoolean,
+  writeJson,
+  writeString,
+} from './lib/localStore';
+import { migrateLocalToCloud, recordFocusSession, saveProfile } from './services/cloudProfile';
 
 type TabId = 'dashboard' | 'timer';
 
-const STORAGE_KEYS = {
-  onboarded: 'focus_onboarded',
-  authenticated: 'focus_authenticated',
-  currentMission: 'focus_current_mission',
-  lastReview: 'focus_last_review',
-  premium: 'focus_premium',
-  paywallPrompted: 'focus_paywall_prompted',
-  user: 'focus_user',
-  onboarding: 'focus_onboarding',
-} as const;
-
-const readBoolean = (key: string) => localStorage.getItem(key) === 'true';
-const readString = (key: string) => localStorage.getItem(key) || '';
-
-const readStoredUserEmail = () => {
-  try {
-    const user = localStorage.getItem(STORAGE_KEYS.user);
-    if (!user) {
-      return '';
-    }
-
-    const parsed = JSON.parse(user) as { email?: string };
-    return parsed.email?.trim().toLowerCase() || '';
-  } catch {
-    return '';
-  }
-};
+const GUEST_USER = { email: 'guest@focusadvantage.app', name: 'Guest User' };
 
 export default function App() {
+  const { ready: sessionReady, user: cloudUser, configured: supabaseConfigured, signOut } = useSupabaseSession();
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [onboarded, setOnboarded] = useState(() => readBoolean(STORAGE_KEYS.onboarded));
-  const [authenticated, setAuthenticated] = useState(() => readBoolean(STORAGE_KEYS.authenticated));
+  const [authenticated, setAuthenticated] = useState(() => readBoolean(STORAGE_KEYS.guest));
+  const [isGuest, setIsGuest] = useState(() => readBoolean(STORAGE_KEYS.guest));
   const [currentMission, setCurrentMission] = useState(() => readString(STORAGE_KEYS.currentMission));
   const [reviewNote, setReviewNote] = useState(() => readString(STORAGE_KEYS.lastReview));
+  const [streak, setStreak] = useState(() => readStreak());
   const [pendingPaywall, setPendingPaywall] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isPremium, setIsPremium] = useState(() => readBoolean(STORAGE_KEYS.premium));
   const [hasPromptedPaywall, setHasPromptedPaywall] = useState(() => readBoolean(STORAGE_KEYS.paywallPrompted));
-  const [userEmail, setUserEmail] = useState(() => readStoredUserEmail());
+  const [userEmail, setUserEmail] = useState(() => readStoredUser()?.email || '');
+  const [userName, setUserName] = useState(() => readStoredUser()?.name || '');
   const [billingRefreshToken, setBillingRefreshToken] = useState(0);
+  const [hydratedUserId, setHydratedUserId] = useState<string | null>(null);
+  const hydrateRequest = useRef(0);
+
+  const cloudPending = Boolean(cloudUser && hydratedUserId !== cloudUser.id);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -64,47 +61,122 @@ export default function App() {
     if (billingSuccess) {
       setHasPromptedPaywall(true);
       setBillingRefreshToken((value) => value + 1);
+      writeBoolean(STORAGE_KEYS.paywallPrompted, true);
 
-      try {
-        localStorage.setItem(STORAGE_KEYS.paywallPrompted, 'true');
-      } catch {
-        // noop
-      }
-
-      window.history.replaceState({}, '', window.location.pathname);
+      const next = new URL(window.location.href);
+      next.searchParams.delete('billing');
+      window.history.replaceState({}, '', `${next.pathname}${next.search}${next.hash}`);
     }
   }, []);
 
   useEffect(() => {
-    const user = localStorage.getItem(STORAGE_KEYS.user);
-    if (authenticated && user) {
-      try {
-        const userData = JSON.parse(user) as { email?: string };
-        updateLastLogin(userData.email || 'guest');
-      } catch {
-        updateLastLogin('guest');
+    if (!sessionReady) {
+      return;
+    }
+
+    if (!cloudUser) {
+      setHydratedUserId(null);
+      const guest = readBoolean(STORAGE_KEYS.guest);
+      setIsGuest(guest);
+      setAuthenticated(guest);
+      return;
+    }
+
+    if (hydratedUserId === cloudUser.id) {
+      return;
+    }
+
+    const requestId = ++hydrateRequest.current;
+    const user = cloudUser;
+
+    const hydrate = async () => {
+      const localUser = readStoredUser();
+      const profile = await migrateLocalToCloud(
+        user,
+        {
+          name: localUser?.name,
+          onboarding: readOnboardingAnswers(),
+          mission: readString(STORAGE_KEYS.currentMission),
+          review: readString(STORAGE_KEYS.lastReview),
+          streak: readStreak(),
+        },
+        readBoolean(cloudMigratedKey(user.id)),
+      );
+
+      writeBoolean(cloudMigratedKey(user.id), true);
+
+      if (hydrateRequest.current !== requestId) {
+        return;
       }
-    }
-  }, [authenticated]);
+
+      const email = (profile?.email || user.email || '').trim().toLowerCase();
+      const name = profile?.name || displayNameFromUser(user, localUser?.name || '');
+
+      setAuthenticated(true);
+      setIsGuest(false);
+      setUserEmail(email);
+      setUserName(name);
+      writeBoolean(STORAGE_KEYS.authenticated, true);
+      writeBoolean(STORAGE_KEYS.guest, false);
+      writeJson(STORAGE_KEYS.user, { email, name });
+
+      if (profile?.onboarding) {
+        setOnboarded(true);
+        writeBoolean(STORAGE_KEYS.onboarded, true);
+        writeJson(STORAGE_KEYS.onboarding, profile.onboarding);
+      }
+
+      if (typeof profile?.current_mission === 'string') {
+        setCurrentMission(profile.current_mission);
+        writeString(STORAGE_KEYS.currentMission, profile.current_mission);
+      }
+
+      if (typeof profile?.last_review === 'string') {
+        setReviewNote(profile.last_review);
+        writeString(STORAGE_KEYS.lastReview, profile.last_review);
+      }
+
+      if (typeof profile?.streak === 'number') {
+        setStreak(profile.streak);
+        writeString(STORAGE_KEYS.streak, String(profile.streak));
+      }
+
+      if (profile?.premium_active) {
+        setIsPremium(true);
+        writeBoolean(STORAGE_KEYS.premium, true);
+      }
+
+      setHydratedUserId(user.id);
+    };
+
+    void hydrate();
+  }, [cloudUser, hydratedUserId, sessionReady]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.currentMission, currentMission);
-    } catch (error) {
-      console.warn('Failed to save mission', error);
+    if (authenticated && userEmail) {
+      updateLastLogin(userEmail);
     }
-  }, [currentMission]);
+  }, [authenticated, userEmail]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.lastReview, reviewNote);
-    } catch (error) {
-      console.warn('Failed to save review note', error);
+    writeString(STORAGE_KEYS.currentMission, currentMission);
+    if (!cloudUser || !sessionReady || cloudPending) {
+      return;
     }
+
+    const timeout = window.setTimeout(() => {
+      void saveProfile(cloudUser.id, { current_mission: currentMission });
+    }, 700);
+
+    return () => window.clearTimeout(timeout);
+  }, [cloudPending, cloudUser, currentMission, sessionReady]);
+
+  useEffect(() => {
+    writeString(STORAGE_KEYS.lastReview, reviewNote);
   }, [reviewNote]);
 
   useEffect(() => {
-    if (!authenticated || !userEmail) {
+    if (!authenticated || !userEmail || isGuest) {
       return;
     }
 
@@ -117,10 +189,10 @@ export default function App() {
       }
 
       setIsPremium(serverPremium);
-      try {
-        localStorage.setItem(STORAGE_KEYS.premium, serverPremium ? 'true' : 'false');
-      } catch {
-        // noop
+      writeBoolean(STORAGE_KEYS.premium, serverPremium);
+
+      if (cloudUser) {
+        void saveProfile(cloudUser.id, { premium_active: serverPremium });
       }
     };
 
@@ -129,56 +201,73 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [authenticated, userEmail, billingRefreshToken]);
+  }, [authenticated, cloudUser, isGuest, userEmail, billingRefreshToken]);
 
   const handleOnboardingComplete = (answers: OnboardingAnswers) => {
     setOnboarded(true);
-    try {
-      localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
-      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(answers));
-    } catch (error) {
-      console.warn('Failed to save onboarding data', error);
-    }
-  };
+    writeBoolean(STORAGE_KEYS.onboarded, true);
+    writeJson(STORAGE_KEYS.onboarding, answers);
 
-  const handleAuthComplete = (user: { email: string; name: string }) => {
-    const normalizedUser = {
-      ...user,
-      email: user.email.trim().toLowerCase(),
-      name: user.name.trim(),
-    };
-
-    setAuthenticated(true);
-    setUserEmail(normalizedUser.email);
-    try {
-      localStorage.setItem(STORAGE_KEYS.authenticated, 'true');
-      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(normalizedUser));
-    } catch (error) {
-      console.warn('Failed to save auth data', error);
+    if (cloudUser) {
+      void saveProfile(cloudUser.id, { onboarding: answers });
     }
   };
 
   const handleGuestLogin = () => {
-    handleAuthComplete({ email: 'guest@focusadvantage.app', name: 'Guest User' });
+    setAuthenticated(true);
+    setIsGuest(true);
+    setUserEmail(GUEST_USER.email);
+    setUserName(GUEST_USER.name);
+    writeBoolean(STORAGE_KEYS.authenticated, true);
+    writeBoolean(STORAGE_KEYS.guest, true);
+    writeJson(STORAGE_KEYS.user, GUEST_USER);
+  };
+
+  const handleSignOut = async () => {
+    hydrateRequest.current += 1;
+    await signOut();
+    setHydratedUserId(null);
+    setAuthenticated(false);
+    setIsGuest(false);
+    setShowPaywall(false);
+    setPendingPaywall(false);
+    writeBoolean(STORAGE_KEYS.authenticated, false);
+    writeBoolean(STORAGE_KEYS.guest, false);
   };
 
   const handleMissionStart = (mission: string) => {
     setCurrentMission(mission);
     setActiveTab('timer');
+
+    if (cloudUser) {
+      void saveProfile(cloudUser.id, { current_mission: mission });
+    }
   };
 
   const openPaywall = () => {
     setPendingPaywall(false);
     setShowPaywall(true);
     setHasPromptedPaywall(true);
-    try {
-      localStorage.setItem(STORAGE_KEYS.paywallPrompted, 'true');
-    } catch {
-      // noop
-    }
+    writeBoolean(STORAGE_KEYS.paywallPrompted, true);
   };
 
-  const handleSessionComplete = () => {
+  const handleSessionComplete = ({ durationSeconds }: { durationSeconds: number }) => {
+    const nextStreak = streak + 1;
+    const mission = currentMission || 'Deep Work Session';
+
+    setStreak(nextStreak);
+    writeString(STORAGE_KEYS.streak, String(nextStreak));
+    trackFocusBlockCompletion(userEmail || 'guest');
+
+    if (cloudUser) {
+      void recordFocusSession({
+        userId: cloudUser.id,
+        mission,
+        durationSeconds,
+        streak: nextStreak,
+      });
+    }
+
     setActiveTab('dashboard');
     setPendingPaywall(true);
   };
@@ -186,18 +275,17 @@ export default function App() {
   const handleSaveReview = (note: string) => {
     const trimmedNote = note.trim();
     setReviewNote(trimmedNote);
+    writeString(STORAGE_KEYS.lastReview, trimmedNote);
+
+    if (cloudUser) {
+      void saveProfile(cloudUser.id, { last_review: trimmedNote });
+    }
 
     if (pendingPaywall && !isPremium && !hasPromptedPaywall) {
       openPaywall();
     }
 
     setPendingPaywall(false);
-
-    try {
-      localStorage.setItem(STORAGE_KEYS.lastReview, trimmedNote);
-    } catch (error) {
-      console.warn('Failed to save review note', error);
-    }
   };
 
   const handleUpgradeNow = () => {
@@ -208,19 +296,27 @@ export default function App() {
   const handleNotNow = () => {
     setShowPaywall(false);
     setHasPromptedPaywall(true);
-    try {
-      localStorage.setItem(STORAGE_KEYS.paywallPrompted, 'true');
-    } catch {
-      // noop
-    }
+    writeBoolean(STORAGE_KEYS.paywallPrompted, true);
   };
+
+  if (!sessionReady || cloudPending) {
+    return (
+      <div className="min-h-screen bg-navy-dark text-white flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="atmosphere" />
+        <div className="relative z-10 text-center space-y-3">
+          <h1 className="text-4xl font-serif italic text-gold tracking-tight">Focus Advantage</h1>
+          <p className="text-sm text-white/40 uppercase tracking-[0.3em]">Restoring session</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!onboarded) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   if (!authenticated) {
-    return <Auth onAuthComplete={handleAuthComplete} onGuestLogin={handleGuestLogin} />;
+    return <Auth supabaseConfigured={supabaseConfigured} onGuestLogin={handleGuestLogin} />;
   }
 
   if (showPaywall) {
@@ -228,7 +324,13 @@ export default function App() {
   }
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <Layout
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      userLabel={isGuest ? 'Guest' : userEmail || userName}
+      isGuest={isGuest}
+      onSignOut={handleSignOut}
+    >
       {activeTab === 'dashboard' ? (
         <Dashboard
           mission={currentMission}
@@ -238,9 +340,14 @@ export default function App() {
           onSaveReview={handleSaveReview}
           onOpenPaywall={openPaywall}
           isPremium={isPremium}
+          saveDestination={cloudUser ? 'cloud' : 'local'}
         />
       ) : (
-        <FocusTimer mission={currentMission || null} onSessionComplete={handleSessionComplete} />
+        <FocusTimer
+          mission={currentMission || null}
+          streak={streak}
+          onSessionComplete={handleSessionComplete}
+        />
       )}
     </Layout>
   );
