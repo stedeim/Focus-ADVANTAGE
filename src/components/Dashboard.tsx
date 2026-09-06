@@ -9,6 +9,7 @@ interface DashboardProps {
   onSaveReview: (note: string) => void;
   onOpenPaywall: () => void;
   isPremium: boolean;
+  saveDestination?: 'cloud' | 'local';
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -19,6 +20,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onSaveReview,
   onOpenPaywall,
   isPremium,
+  saveDestination = 'local',
 }) => {
   const [draftReview, setDraftReview] = React.useState(reviewNote);
   const [saved, setSaved] = React.useState(false);
@@ -114,7 +116,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           <div className="flex items-center justify-between gap-3">
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
-              Saved locally
+              {saveDestination === 'cloud' ? 'Saved to cloud' : 'Saved locally'}
             </span>
             <button
               onClick={handleSaveReview}

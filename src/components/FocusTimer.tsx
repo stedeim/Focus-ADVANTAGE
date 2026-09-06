@@ -1,40 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pause, Play, RotateCcw, Flame } from 'lucide-react';
 import { motion } from 'motion/react';
-import { trackFocusBlockCompletion } from '../services/activityTracker';
 
 interface FocusTimerProps {
   mission?: string | null;
-  onSessionComplete?: () => void;
+  streak?: number;
+  onSessionComplete?: (details: { durationSeconds: number }) => void;
 }
 
 const DEFAULT_MINUTES = 25;
 const TOTAL_SECONDS = DEFAULT_MINUTES * 60;
 
-const readStoredStreak = () => {
-  const saved = localStorage.getItem('focus_streak');
-  const parsed = Number.parseInt(saved || '0', 10);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const readStoredUserId = () => {
-  const rawUser = localStorage.getItem('focus_user');
-  if (!rawUser) return 'guest';
-
-  try {
-    const user = JSON.parse(rawUser) as { email?: string };
-    return user.email || 'guest';
-  } catch {
-    return 'guest';
-  }
-};
-
-export const FocusTimer: React.FC<FocusTimerProps> = ({ mission, onSessionComplete }) => {
+export const FocusTimer: React.FC<FocusTimerProps> = ({
+  mission,
+  streak = 0,
+  onSessionComplete,
+}) => {
   const completionHandled = useRef(false);
 
   const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
   const [isActive, setIsActive] = useState(false);
-  const [streak, setStreak] = useState(() => readStoredStreak());
 
   useEffect(() => {
     if (!isActive) return;
@@ -57,14 +42,8 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({ mission, onSessionComple
     completionHandled.current = true;
     setIsActive(false);
     setTimeLeft(TOTAL_SECONDS);
-
-    const newStreak = streak + 1;
-    setStreak(newStreak);
-    localStorage.setItem('focus_streak', String(newStreak));
-
-    trackFocusBlockCompletion(readStoredUserId());
-    onSessionComplete?.();
-  }, [isActive, onSessionComplete, streak, timeLeft]);
+    onSessionComplete?.({ durationSeconds: TOTAL_SECONDS });
+  }, [isActive, onSessionComplete, timeLeft]);
 
   const progress = 1 - timeLeft / TOTAL_SECONDS;
 

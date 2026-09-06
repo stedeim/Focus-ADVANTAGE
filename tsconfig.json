@@ -1,4 +1,5 @@
 {
+  // Live MVP path only. Unused modules (AICoach, gemini, Circles, etc.) stay in-repo but are not typechecked.
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,
@@ -23,5 +24,24 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
+  "include": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/vite-env.d.ts",
+    "src/components/Auth.tsx",
+    "src/components/Dashboard.tsx",
+    "src/components/FocusTimer.tsx",
+    "src/components/Layout.tsx",
+    "src/components/Onboarding.tsx",
+    "src/components/Paywall.tsx",
+    "src/hooks/**/*.ts",
+    "src/lib/localStore.ts",
+    "src/lib/supabaseClient.ts",
+    "src/services/activityTracker.ts",
+    "src/services/billing.ts",
+    "src/services/cloudProfile.ts",
+    "src/types/onboarding.ts",
+    "vite.config.ts"
+  ],
   "exclude": ["supabase", "node_modules", "dist"]
 }
