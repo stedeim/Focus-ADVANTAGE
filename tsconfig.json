@@ -36,6 +36,7 @@
     "src/components/Paywall.tsx",
     "src/hooks/**/*.ts",
     "src/lib/localStore.ts",
+    "src/lib/nativeShell.ts",
     "src/lib/supabaseClient.ts",
     "src/services/activityTracker.ts",
     "src/services/billing.ts",
