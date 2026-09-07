@@ -14,6 +14,9 @@
   body {
     @apply bg-navy-dark text-white antialiased selection:bg-gold selection:text-navy-dark;
     font-family: var(--font-sans);
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   .atmosphere {

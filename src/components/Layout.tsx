@@ -109,7 +109,7 @@ export const Layout: React.FC<LayoutProps> = ({
           </motion.div>
         </main>
 
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-24 bg-navy-dark/80 backdrop-blur-2xl border-t border-white/5 px-4 flex items-center justify-around z-20">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 min-h-24 bg-navy-dark/80 backdrop-blur-2xl border-t border-white/5 px-4 flex items-center justify-around z-20 pb-[env(safe-area-inset-bottom)]">
           {navItems.map((item) => (
             <button
               key={item.id}
