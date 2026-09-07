@@ -289,7 +289,7 @@ export default function App() {
   };
 
   const handleUpgradeNow = () => {
-    const paymentLink = import.meta.env.VITE_STRIPE_PAYMENT_LINK_URL || 'https://buy.stripe.com/28E28r3bb6dd1iUg1224001';
+    const paymentLink = import.meta.env.VITE_STRIPE_PAYMENT_LINK_URL || 'https://buy.stripe.com/3cI8wP3bbeJJ0eQ02424002';
     window.location.href = paymentLink;
   };
 

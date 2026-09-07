@@ -28,7 +28,7 @@ Required for magic-link sign-in and cloud save (also set these on Vercel):
 Optional:
 
 - `VITE_APP_URL` — magic-link redirect override (defaults to `window.location.origin`)
-- `VITE_STRIPE_PAYMENT_LINK_URL` — paywall checkout link
+- `VITE_STRIPE_PAYMENT_LINK_URL` — paywall checkout link (USD, $9.99 / month; hardcoded fallback is the USD Premium Payment Link)
 - `GEMINI_API_KEY` / `APP_URL` — kept for compatibility; unused by the current MVP path
 
 Without the Supabase vars, the **signed-in** path shows a configure-Supabase message. **Continue as Guest** still works on-device.
