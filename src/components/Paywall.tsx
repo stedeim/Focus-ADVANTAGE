@@ -31,6 +31,7 @@ export const Paywall: React.FC<PaywallProps> = ({ onUpgradeNow, onNotNow }) => {
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold/80">Premium</p>
             <h1 className="text-2xl font-bold">Unlock Premium</h1>
+            <p className="text-sm text-gold/90 mt-1">$9.99 USD / month</p>
           </div>
         </div>
 
@@ -56,7 +57,7 @@ export const Paywall: React.FC<PaywallProps> = ({ onUpgradeNow, onNotNow }) => {
 
         <button onClick={onUpgradeNow} className="gold-button w-full mb-3">
           <Sparkles size={16} />
-          Continue to Stripe
+          Continue to Stripe · $9.99 USD / month
         </button>
 
         <button
