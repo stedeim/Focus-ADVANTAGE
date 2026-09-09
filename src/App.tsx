@@ -10,10 +10,16 @@ import { Dashboard } from './components/Dashboard';
 import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
 import { Paywall } from './components/Paywall';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
+import { SupportPage } from './pages/SupportPage';
+import { DeleteAccountPage } from './pages/DeleteAccountPage';
 import { OnboardingAnswers } from './types/onboarding';
 import { updateLastLogin, trackFocusBlockCompletion } from './services/activityTracker';
 import { fetchBillingStatus } from './services/billing';
 import { useSupabaseSession } from './hooks/useSupabaseSession';
+import { useAppPath } from './hooks/useAppPath';
+import { LEGAL_ROUTES } from './lib/brand';
 import { displayNameFromUser } from './lib/supabaseClient';
 import {
   STORAGE_KEYS,
@@ -34,6 +40,7 @@ type TabId = 'dashboard' | 'timer';
 const GUEST_USER = { email: 'guest@focusadvantage.app', name: 'Guest User' };
 
 export default function App() {
+  const path = useAppPath();
   const { ready: sessionReady, user: cloudUser, configured: supabaseConfigured, signOut } = useSupabaseSession();
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [onboarded, setOnboarded] = useState(() => readBoolean(STORAGE_KEYS.onboarded));
@@ -298,6 +305,25 @@ export default function App() {
     setHasPromptedPaywall(true);
     writeBoolean(STORAGE_KEYS.paywallPrompted, true);
   };
+
+  if (path === LEGAL_ROUTES.privacy) {
+    return <PrivacyPage />;
+  }
+  if (path === LEGAL_ROUTES.terms) {
+    return <TermsPage />;
+  }
+  if (path === LEGAL_ROUTES.support) {
+    return <SupportPage />;
+  }
+  if (path === LEGAL_ROUTES.deleteAccount) {
+    return (
+      <DeleteAccountPage
+        sessionReady={sessionReady}
+        cloudUser={cloudUser}
+        isGuest={isGuest}
+      />
+    );
+  }
 
   if (!sessionReady || cloudPending) {
     return (

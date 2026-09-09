@@ -4,9 +4,11 @@
 
 # Focus Advantage
 
-Vite + React + TypeScript focus MVP, wrapped with Capacitor for **iOS and Android**. The web build is the codebase that ships on phones. Live web (reference / magic-link host): https://focus-advantage.vercel.app
+Vite + React + TypeScript focus MVP, wrapped with Capacitor for **iOS and Android**. The web build is the codebase that ships on phones. Public site: https://focusadvantage.io (Vercel host: https://focus-advantage.vercel.app).
 
 The shipped path is **Onboarding → Auth → Dashboard / Focus Timer → Paywall**. Guest mode stays local. Signed-in users persist mission, review, onboarding, streak, and completed sessions in Supabase.
+
+In-app legal routes (no login required): `/privacy`, `/terms`, `/support`, `/delete-account`. Support: stedeim@gmail.com.
 
 App ID: `app.focusadvantage` (reverse of `focusadvantage.app`). Custom URL scheme: `focusadvantage://`.
 
@@ -45,8 +47,10 @@ Without the Supabase vars, the **signed-in** path shows a configure-Supabase mes
 ## Enable magic-link auth
 
 1. In Supabase → **Authentication → URL Configuration**:
-   - Site URL: `https://focus-advantage.vercel.app`
+   - Site URL: `https://focusadvantage.io` (or the Vercel host if the custom domain is not yet attached)
    - Redirect URLs:
+     - `https://focusadvantage.io`
+     - `https://focusadvantage.io/**`
      - `https://focus-advantage.vercel.app`
      - `https://focus-advantage.vercel.app/**`
      - `http://localhost:3000`
@@ -55,9 +59,13 @@ Without the Supabase vars, the **signed-in** path shows a configure-Supabase mes
      - `focusadvantage://auth/callback`
      - `focusadvantage://**`
 2. Keep the Email provider enabled and allow magic links.
-3. Run `supabase/migrations/20260906152400_profiles_and_focus_sessions.sql` in the SQL editor (or `supabase db push`). Do not drop existing billing tables.
-4. In Vercel → Project → Settings → Environment Variables, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for Production (and Preview if you test there).
-5. Redeploy. Send yourself a magic link and confirm the callback returns to the app with a session.
+3. Run these in the SQL editor (or `supabase db push`). Do not drop existing billing tables:
+   - `supabase/migrations/20260906152400_profiles_and_focus_sessions.sql`
+   - `supabase/migrations/20260909020000_account_deletion.sql`
+4. Deploy the account-deletion function (uses the project's built-in `SUPABASE_SERVICE_ROLE_KEY`; no extra secret):
+   - `supabase functions deploy delete-account`
+5. In Vercel → Project → Settings → Environment Variables, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for Production (and Preview if you test there).
+6. Redeploy. Send yourself a magic link and confirm the callback returns to the app with a session.
 
 On a phone, the magic link should return via `focusadvantage://auth/callback`. The Capacitor App plugin listens for that URL and exchanges the PKCE `code` (or hash tokens) for a Supabase session. Keep the app installed and recently used so the PKCE verifier is still in WebView storage.
 
@@ -108,5 +116,27 @@ In Xcode: set your Apple Developer team under **Signing & Capabilities**, pick a
 ### Known blockers (later tickets)
 
 - **Store IAP is not implemented.** Premium on phones still uses the existing Stripe Payment Link. That is fine for TestFlight / Play internal testing of the wrap, not for App Store / Play production billing.
-- Universal Links / App Links for `https://focus-advantage.vercel.app` are not configured yet. Custom-scheme return (`focusadvantage://`) is the auth path for devices.
+- Universal Links / App Links for `https://focusadvantage.io` are not configured yet. Custom-scheme return (`focusadvantage://`) is the auth path for devices.
 - Live-reload (`server.url` + `cleartext`) is a local-only Capacitor tweak. Never ship it.
+
+## Legal, support, and account deletion
+
+Store-facing pages live in the SPA (Vercel rewrites unknown paths to `index.html`):
+
+| Path | Purpose |
+| --- | --- |
+| `/privacy` | Privacy Policy |
+| `/terms` | Terms of Service |
+| `/support` | How to get help (`stedeim@gmail.com`) |
+| `/delete-account` | Delete account / guest data |
+
+Links appear on onboarding, sign-in, the paywall, and the signed-in account area.
+
+Signed-in deletion tries, in order:
+
+1. Edge Function `delete-account` (deletes the Supabase Auth user; profile and sessions cascade)
+2. RPC `delete_own_account()` from the SQL migration
+3. Client delete of `profiles` + `focus_sessions` the user owns, then sign-out, plus a mailto to finish auth-user removal if 1–2 are not deployed yet
+
+Guest deletion only clears local `focus_*` storage on the device.
+

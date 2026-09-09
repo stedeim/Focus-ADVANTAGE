@@ -38,7 +38,7 @@ const getHtmlTemplate = (templateId: string, data: any, trackingId: string) => {
             ${content}
           </div>
           <div class="footer">
-            <p>Focus Advantage HQ · 123 Deep Work Way · San Francisco, CA</p>
+            <p>Focus Advantage · Deimira Baidoo · Calgary, Alberta, Canada · stedeim@gmail.com</p>
             <p><a href="${unsubscribeLink}" style="color: #999;">Unsubscribe</a> from these notifications.</p>
           </div>
         </div>

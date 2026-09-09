@@ -1,6 +1,9 @@
 import React from 'react';
 import { LayoutDashboard, LogOut, Timer } from 'lucide-react';
 import { motion } from 'motion/react';
+import { LEGAL_LINKS } from '../lib/brand';
+import { AppLink } from './AppLink';
+import { LegalFooter } from './LegalFooter';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -65,6 +68,17 @@ export const Layout: React.FC<LayoutProps> = ({
               </p>
               <p className="text-xs text-white/55 truncate">{userLabel || (isGuest ? 'Local only' : 'Account')}</p>
             </div>
+            <nav aria-label="Account and legal" className="grid grid-cols-2 gap-1 px-1">
+              {LEGAL_LINKS.map((link) => (
+                <AppLink
+                  key={link.to}
+                  to={link.to}
+                  className="text-[10px] font-bold uppercase tracking-widest text-white/35 hover:text-gold transition-colors py-1"
+                >
+                  {link.label}
+                </AppLink>
+              ))}
+            </nav>
             <button
               type="button"
               onClick={onSignOut}
@@ -107,6 +121,9 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             {children}
           </motion.div>
+          <div className="max-w-4xl mx-auto mt-8 md:hidden">
+            <LegalFooter />
+          </div>
         </main>
 
         <nav className="md:hidden fixed bottom-0 left-0 right-0 min-h-24 bg-navy-dark/80 backdrop-blur-2xl border-t border-white/5 px-4 flex items-center justify-around z-20 pb-[env(safe-area-inset-bottom)]">

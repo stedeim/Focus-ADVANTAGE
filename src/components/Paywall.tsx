@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Check, Crown, Sparkles, Lock } from 'lucide-react';
+import { LegalFooter } from './LegalFooter';
 
 interface PaywallProps {
   onUpgradeNow: () => void;
@@ -70,6 +71,8 @@ export const Paywall: React.FC<PaywallProps> = ({ onUpgradeNow, onNotNow }) => {
         <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-white/25 text-center">
           You can upgrade anytime.
         </p>
+
+        <LegalFooter className="mt-6 pt-4 border-t border-white/5" />
       </motion.div>
     </div>
   );

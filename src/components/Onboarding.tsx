@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, Sparkles, Target, Check } from 'lucide-react';
 import { FocusCapacity, OnboardingAnswers, WorkType } from '../types/onboarding';
+import { LegalFooter } from './LegalFooter';
 
 interface OnboardingProps {
   onComplete: (answers: OnboardingAnswers) => void;
@@ -136,6 +137,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           <Check size={14} />
           <span>Only the essentials</span>
         </div>
+
+        <LegalFooter className="pt-2" />
       </motion.div>
     </div>
   );
