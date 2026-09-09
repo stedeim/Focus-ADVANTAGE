@@ -91,3 +91,18 @@ export const readOnboardingAnswers = (): OnboardingAnswers | null => {
 };
 
 export const cloudMigratedKey = (userId: string) => `focus_cloud_migrated:${userId}`;
+
+export const clearLocalAppData = () => {
+  try {
+    const keys: string[] = [];
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (key && key.startsWith('focus_')) {
+        keys.push(key);
+      }
+    }
+    keys.forEach((key) => localStorage.removeItem(key));
+  } catch (error) {
+    console.warn('Failed to clear local Focus Advantage data', error);
+  }
+};

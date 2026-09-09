@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { AlertCircle, Check, ChevronRight, Mail, User } from 'lucide-react';
 import { sendMagicLink, SUPABASE_CONFIG_MESSAGE } from '../lib/supabaseClient';
+import { LegalFooter } from './LegalFooter';
 
 interface AuthProps {
   supabaseConfigured: boolean;
@@ -143,6 +144,8 @@ export const Auth: React.FC<AuthProps> = ({ supabaseConfigured, onGuestLogin }) 
           </button>
           <p className="text-[11px] text-white/25">Guest progress stays on this device only.</p>
         </div>
+
+        <LegalFooter className="pt-4" />
       </motion.div>
     </div>
   );
