@@ -55,7 +55,7 @@ Without the Supabase vars, the **signed-in** path shows a configure-Supabase mes
      - `focusadvantage://auth/callback`
      - `focusadvantage://**`
 2. Keep the Email provider enabled and allow magic links.
-3. Run `supabase/migrations/20260906152400_profiles_and_focus_sessions.sql` in the SQL editor (or `supabase db push`). Do not drop existing billing tables.
+3. Run the SQL in `supabase/migrations/` in order in the SQL editor (or `supabase db push`). Do not drop existing billing tables (`billing_statuses`, `customers`, `subscriptions`, `newsletter_signups`).
 4. In Vercel → Project → Settings → Environment Variables, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for Production (and Preview if you test there).
 5. Redeploy. Send yourself a magic link and confirm the callback returns to the app with a session.
 
@@ -104,6 +104,57 @@ npm run cap:ios
 ```
 
 In Xcode: set your Apple Developer team under **Signing & Capabilities**, pick a simulator or device, then Run. CocoaPods is not required for this Capacitor 8 SPM project.
+
+## Stripe web billing (Premium)
+
+Web Premium is a Stripe Payment Link ($9.99 USD / month) on the Quotemate Stripe account. Success redirect: `https://focusadvantage.io/?billing=success`. The app polls `billing-status` after that return so Premium sticks once the webhook has written `billing_statuses`.
+
+Signed-in checkout prefills the magic-link email. Guest checkout can still pay; Premium unlocks when that person signs in with the **same email Stripe charged**.
+
+### Edge Functions
+
+| Function | JWT | Role |
+| --- | --- | --- |
+| `stripe-webhook` | `verify_jwt=false` | Stripe signature required |
+| `billing-status` | `verify_jwt=false` | Reads `billing_statuses` by email (JWT email wins when present) |
+
+Webhook URL (exact):
+
+`https://zsswidmafowdlwymuide.supabase.co/functions/v1/stripe-webhook`
+
+### Secrets (Supabase Edge Functions — not `VITE_*`)
+
+```bash
+supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_... STRIPE_SECRET_KEY=sk_...
+```
+
+`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided automatically. `STRIPE_SECRET_KEY` (or `STRIPE_API_KEY`) is used to look up customer email when a webhook payload does not include it.
+
+### Deploy
+
+```bash
+supabase db push
+supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy billing-status --no-verify-jwt
+```
+
+Or paste `supabase/migrations/20260909021700_billing_rls_and_indexes.sql` in the SQL editor, then deploy the two functions from the Dashboard with **Verify JWT** turned **off**.
+
+### Stripe Dashboard webhook
+
+This repo does **not** register the endpoint. After deploy, in Stripe → Developers → Webhooks (Quotemate / `acct` used by Payment Link `plink_1UCrhwIntRZlTVTNWoWvMfzy`):
+
+1. Add endpoint URL `https://zsswidmafowdlwymuide.supabase.co/functions/v1/stripe-webhook`
+2. Events:
+   - `checkout.session.completed`
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.paid`
+   - `invoice.payment_failed`
+3. Copy the signing secret into `STRIPE_WEBHOOK_SECRET`
+
+Price: `price_1UCrhmIntRZlTVTNuw3xjOEl`.
 
 ### Known blockers (later tickets)
 

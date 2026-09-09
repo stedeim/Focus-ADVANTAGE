@@ -12,7 +12,7 @@ import { Auth } from './components/Auth';
 import { Paywall } from './components/Paywall';
 import { OnboardingAnswers } from './types/onboarding';
 import { updateLastLogin, trackFocusBlockCompletion } from './services/activityTracker';
-import { fetchBillingStatus } from './services/billing';
+import { pollBillingStatus } from './services/billing';
 import { useSupabaseSession } from './hooks/useSupabaseSession';
 import { displayNameFromUser } from './lib/supabaseClient';
 import {
@@ -49,6 +49,7 @@ export default function App() {
   const [userEmail, setUserEmail] = useState(() => readStoredUser()?.email || '');
   const [userName, setUserName] = useState(() => readStoredUser()?.name || '');
   const [billingRefreshToken, setBillingRefreshToken] = useState(0);
+  const [awaitingCheckout, setAwaitingCheckout] = useState(false);
   const [hydratedUserId, setHydratedUserId] = useState<string | null>(null);
   const hydrateRequest = useRef(0);
 
@@ -60,6 +61,7 @@ export default function App() {
 
     if (billingSuccess) {
       setHasPromptedPaywall(true);
+      setAwaitingCheckout(true);
       setBillingRefreshToken((value) => value + 1);
       writeBoolean(STORAGE_KEYS.paywallPrompted, true);
 
@@ -180,16 +182,23 @@ export default function App() {
       return;
     }
 
-    let cancelled = false;
+    const signal = { cancelled: false };
 
     const syncBillingStatus = async () => {
-      const serverPremium = await fetchBillingStatus(userEmail);
-      if (cancelled || serverPremium === null) {
+      const serverPremium = await pollBillingStatus(userEmail, {
+        attempts: awaitingCheckout ? 8 : 1,
+        delayMs: 1500,
+        signal,
+      });
+      if (signal.cancelled || serverPremium === null) {
         return;
       }
 
       setIsPremium(serverPremium);
       writeBoolean(STORAGE_KEYS.premium, serverPremium);
+      if (awaitingCheckout) {
+        setAwaitingCheckout(false);
+      }
 
       if (cloudUser) {
         void saveProfile(cloudUser.id, { premium_active: serverPremium });
@@ -199,9 +208,9 @@ export default function App() {
     void syncBillingStatus();
 
     return () => {
-      cancelled = true;
+      signal.cancelled = true;
     };
-  }, [authenticated, cloudUser, isGuest, userEmail, billingRefreshToken]);
+  }, [authenticated, awaitingCheckout, cloudUser, isGuest, userEmail, billingRefreshToken]);
 
   const handleOnboardingComplete = (answers: OnboardingAnswers) => {
     setOnboarded(true);
@@ -290,7 +299,11 @@ export default function App() {
 
   const handleUpgradeNow = () => {
     const paymentLink = import.meta.env.VITE_STRIPE_PAYMENT_LINK_URL || 'https://buy.stripe.com/3cI8wP3bbeJJ0eQ02424002';
-    window.location.href = paymentLink;
+    const checkoutUrl = new URL(paymentLink);
+    if (!isGuest && userEmail.includes('@')) {
+      checkoutUrl.searchParams.set('prefilled_email', userEmail);
+    }
+    window.location.href = checkoutUrl.toString();
   };
 
   const handleNotNow = () => {
