@@ -1,0 +1,9 @@
+# Edge Function JWT settings. Stripe cannot send a Supabase JWT, so the webhook
+# must be invoked with verify_jwt = false. billing-status stays false so the
+# existing web client (email body, optional user JWT) can call it.
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.billing-status]
+verify_jwt = false
