@@ -90,9 +90,14 @@ In Android Studio: wait for Gradle sync, pick an emulator or device, then Run. T
 
 ### iOS (project is in-repo; Xcode still needs a Mac)
 
-The `ios/` Xcode project is committed (Capacitor 8 + Swift Package Manager). Generating it did **not** require a Mac. **Building, signing, and running still do** — Xcode is macOS-only.
+The `ios/` Xcode project is committed (Capacitor 8 + Swift Package Manager). Generating it did **not** require a Mac. **Building, signing, Archive, and TestFlight still do** — Xcode is macOS-only.
 
-The `focusadvantage://` URL type is already in `ios/App/App/Info.plist`.
+Store-ready plist/branding and the Owner TestFlight runbook: **[docs/IOS_TESTFLIGHT.md](docs/IOS_TESTFLIGHT.md)**.
+
+- Display name: Focus Advantage. Bundle id: `app.focusadvantage`.
+- Custom URL scheme `focusadvantage://` (auth return: `focusadvantage://auth/callback`) is in `ios/App/App/Info.plist`.
+- Open **`ios/App/App.xcodeproj`** (SPM, not CocoaPods). There is no `App.xcworkspace` to open.
+- **Apple IAP is required before a public App Store Premium.** Stripe is web-only.
 
 On a Mac with Xcode 16+:
 
@@ -103,7 +108,7 @@ npm run cap:ios
 # or: npx cap open ios
 ```
 
-In Xcode: set your Apple Developer team under **Signing & Capabilities**, pick a simulator or device, then Run. CocoaPods is not required for this Capacitor 8 SPM project.
+In Xcode: set your Apple Developer team under **Signing & Capabilities**, pick a simulator or device, then Run. Follow [docs/IOS_TESTFLIGHT.md](docs/IOS_TESTFLIGHT.md) for Archive → App Store Connect → TestFlight internal testing.
 
 ## Stripe web billing (Premium)
 
@@ -158,6 +163,6 @@ Price: `price_1UCrhmIntRZlTVTNuw3xjOEl`.
 
 ### Known blockers (later tickets)
 
-- **Store IAP is not implemented.** Premium on phones still uses the existing Stripe Payment Link. That is fine for TestFlight / Play internal testing of the wrap, not for App Store / Play production billing.
+- **Store IAP is not implemented.** Premium on phones still uses the existing Stripe Payment Link. That is fine for TestFlight / Play **internal** testing of the wrap, **not** for App Store production billing. Apple IAP is required before a public App Store Premium. See [docs/IOS_TESTFLIGHT.md](docs/IOS_TESTFLIGHT.md).
 - Universal Links / App Links for `https://focus-advantage.vercel.app` are not configured yet. Custom-scheme return (`focusadvantage://`) is the auth path for devices.
 - Live-reload (`server.url` + `cleartext`) is a local-only Capacitor tweak. Never ship it.

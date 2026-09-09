@@ -11,6 +11,12 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     iosScheme: 'https',
   },
+  ios: {
+    contentInset: 'automatic',
+    backgroundColor: '#050B15',
+    preferredContentMode: 'mobile',
+    scheme: 'App',
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1500,
