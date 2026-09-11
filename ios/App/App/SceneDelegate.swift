@@ -15,6 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // focusadvantage://auth/callback (and later Universal Links) land here.
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
     }
 
