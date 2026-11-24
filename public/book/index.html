@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Focus Advantage by Deimira Baidoo | Book, Workbook &amp; App</title>
+<meta name="description" content="Stop losing two hours a day to distraction. The Focus Advantage by Deimira Baidoo: the book, the ten-worksheet Workbook, and the app. Start free with the Quick-Start Toolkit and the Distraction Cost Calculator.">
+<!--
+  BUILD STATE — Nov 19, 2026. Deployment-ready static build for the /book route
+  of focusadvantage.io (one-file drop into Deimira's app; assets in ./assets/).
+  NOTHING on this page is live. Checkout buttons and the signup form are
+  placeholders, each marked with a CHECKOUT / SIGNUP comment where it sits.
+  Gate pipeline: see GATE-STATUS.md in this folder.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#081426;
+  --navy-2:#0b1c36;
+  --navy-3:#10264a;
+  --ink:#f4f0e6;
+  --ink-72:rgba(244,240,230,.72);
+  --ink-55:rgba(244,240,230,.55);
+  --gold:#f0a837;
+  --gold-deep:#c07f13;
+  --gold-ink:#1a1206;
+  --glass:rgba(15,31,58,.58);
+  --glass-line:rgba(244,240,230,.14);
+  --radius:16px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html:focus-within{scroll-behavior:smooth}
+body{
+  background:var(--navy);
+  color:var(--ink);
+  font-family:"Libre Franklin",system-ui,sans-serif;
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--gold-ink)}
+::-webkit-scrollbar{width:11px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:var(--navy-3);border-radius:6px;border:2px solid var(--navy)}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-deep)}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+
+.wrap{width:min(1180px,100% - 3rem);margin-inline:auto}
+section{padding:6.5rem 0}
+h1,h2,h3{font-weight:900;line-height:1.08;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:clamp(2rem,4.2vw,3.1rem);margin-bottom:1.1rem}
+h3{font-size:1.25rem;letter-spacing:-.01em}
+p.lede{font-size:1.16rem;color:var(--ink-72);max-width:62ch}
+p{max-width:68ch}
+.dim{color:var(--ink-72)}
+.small{font-size:.92rem;color:var(--ink-55)}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,20,38,.82);
+  backdrop-filter:blur(16px) saturate(1.4);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border-bottom:1px solid var(--glass-line);
+}
+.header-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0}
+.wordmark{font-weight:900;letter-spacing:.14em;font-size:.86rem;text-decoration:none;white-space:nowrap}
+.wordmark span{color:var(--gold)}
+.header-links{display:flex;gap:.6rem;align-items:center}
+.header-links .btn{white-space:nowrap}
+.skip-link{position:absolute;left:-999px;top:.6rem;z-index:100;background:var(--gold);color:#0b1426;padding:.6rem 1rem;border-radius:8px;font-weight:700}
+.skip-link:focus{left:1rem}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  font-weight:800;font-size:1rem;letter-spacing:.01em;text-decoration:none;
+  padding:.95rem 1.7rem;border-radius:999px;border:1px solid transparent;
+  cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .35s var(--ease);
+  font-family:inherit;
+}
+.btn-gold{
+  background:linear-gradient(180deg,var(--gold),#e09a1f);
+  color:var(--gold-ink);
+  box-shadow:0 14px 30px -14px rgba(240,168,55,.55);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 20px 36px -14px rgba(240,168,55,.6)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:rgba(244,240,230,.35)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.btn-small{padding:.6rem 1.15rem;font-size:.9rem}
+.btn[aria-disabled="true"]{pointer-events:none;
+  background:rgba(244,240,230,.08);color:var(--ink-55);box-shadow:none;cursor:not-allowed;
+  border-color:rgba(244,240,230,.12);
+}
+.btn[aria-disabled="true"]:hover{transform:none}
+
+/* ---------- hero ---------- */
+.hero{
+  padding:4.5rem 0 6rem;
+  background:
+    radial-gradient(52rem 30rem at 85% -10%,rgba(240,168,55,.13),transparent 60%),
+    radial-gradient(40rem 26rem at -10% 110%,rgba(16,38,74,.9),transparent 65%),
+    linear-gradient(180deg,var(--navy-2),var(--navy) 70%);
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:3.5rem;align-items:center}
+.hero h1{font-size:clamp(2.6rem,5.6vw,4.4rem);margin-bottom:1.4rem}
+.hero .lede{margin-bottom:2rem}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:.8rem;margin-bottom:1.1rem}
+.hero-facts{font-size:.95rem;color:var(--ink-55)}
+.hero-facts b{color:var(--ink-72);font-weight:600}
+.hero-book{position:relative;display:flex;justify-content:center}
+.hero-book img{
+  width:min(430px,88%);
+  border-radius:6px;
+  box-shadow:0 60px 90px -30px rgba(0,0,0,.75),0 24px 40px -20px rgba(0,0,0,.6);
+  animation:floaty 9s ease-in-out infinite alternate;
+}
+@keyframes floaty{from{transform:translateY(0) rotate(-.4deg)}to{transform:translateY(-14px) rotate(.4deg)}}
+
+/* ---------- cost ledger ---------- */
+.cost{background:linear-gradient(180deg,var(--navy),var(--navy-2))}
+.ledger{
+  margin-top:2.6rem;border:1px solid var(--glass-line);border-radius:var(--radius);
+  background:rgba(244,240,230,.03);overflow:hidden;max-width:760px;
+}
+.ledger table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ledger td{padding:.95rem 1.4rem;border-bottom:1px solid rgba(244,240,230,.08);font-size:1.02rem}
+.ledger tr:last-child td{border-bottom:none}
+.ledger td:last-child{text-align:right;font-weight:800;white-space:nowrap}
+.ledger tr.total td{background:rgba(240,168,55,.09);font-size:1.12rem}
+.ledger tr.total td:last-child{color:var(--gold)}
+.cost .cta-row{margin-top:2.2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+
+/* ---------- story / guide ---------- */
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:start}
+.story p{margin-bottom:1.1rem;color:var(--ink-72)}
+.story p strong{color:var(--ink)}
+.pull{
+  font-size:1.5rem;font-weight:800;line-height:1.3;letter-spacing:-.015em;color:var(--ink);
+  margin:1.6rem 0;max-width:26ch;
+}
+.pull em{font-style:normal;color:var(--gold)}
+.chapters{list-style:none;counter-reset:ch}
+.chapters li{
+  counter-increment:ch;display:flex;gap:1rem;align-items:baseline;
+  padding:.62rem 0;border-bottom:1px solid rgba(244,240,230,.08);font-size:1rem;
+}
+.chapters li::before{
+  content:counter(ch,decimal-leading-zero);
+  font-weight:800;color:var(--gold);font-size:.85rem;min-width:2ch;font-variant-numeric:tabular-nums;
+}
+.chapters li:last-child{border-bottom:none}
+
+/* ---------- plan ---------- */
+.plan{background:var(--navy-2)}
+.plan-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2rem;margin-top:2.8rem}
+.plan-step .num{
+  font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;margin-bottom:.9rem;
+  font-variant-numeric:tabular-nums;
+}
+.plan-step p{color:var(--ink-72);font-size:1rem;margin-top:.5rem}
+
+/* ---------- glass (liquid glass, web translation) ---------- */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(20px) saturate(1.45);
+  -webkit-backdrop-filter:blur(20px) saturate(1.45);
+  border:1px solid var(--glass-line);
+  border-radius:var(--radius);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.65),inset 0 1px 0 rgba(244,240,230,.09);
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+<style>
+/* ---------- free signup ---------- */
+.free{
+  background:
+    radial-gradient(46rem 26rem at 100% 0%,rgba(240,168,55,.12),transparent 60%),
+    linear-gradient(180deg,var(--navy-2),var(--navy));
+}
+.free-panel{padding:clamp(1.8rem,4vw,3.2rem);display:grid;grid-template-columns:1.1fr .9fr;gap:3rem}
+.free-list{list-style:none;margin-top:1.4rem}
+.free-list li{padding:.55rem 0 .55rem 1.9rem;position:relative;color:var(--ink-72)}
+.free-list li b{color:var(--ink);font-weight:600}
+.free-list li::before{
+  content:"";position:absolute;left:0;top:.95rem;width:.85rem;height:.5rem;
+  border-left:3px solid var(--gold);border-bottom:3px solid var(--gold);transform:rotate(-45deg);
+}
+.signup{align-self:center}
+.signup label{font-weight:700;display:block;margin-bottom:.6rem}
+.signup-row{display:flex;gap:.6rem;flex-wrap:wrap}
+.signup input[type="email"]{
+  flex:1 1 240px;background:rgba(8,20,38,.65);border:1px solid rgba(244,240,230,.28);
+  border-radius:999px;padding:.95rem 1.3rem;color:var(--ink);font:inherit;font-size:1rem;
+  caret-color:var(--gold);
+}
+.signup input[type="email"]::placeholder{color:var(--ink-55)}
+.signup input[type="email"]:focus{outline:2px solid var(--gold);outline-offset:2px;border-color:transparent}
+.form-note{margin-top:.9rem;font-size:.92rem;color:var(--ink-55)}
+.form-msg{margin-top:.9rem;font-weight:600}
+.form-msg:empty{margin:0}
+.form-msg.error{color:#ffb4a2}
+.form-msg.ok{color:var(--gold)}
+
+/* ---------- workbook ---------- */
+.workbook-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:3.5rem;align-items:center}
+.workbook-grid figure{position:relative;margin:0}
+.hero-grid>*,.story-grid>*,.workbook-grid>*,.free-panel>*{min-width:0}
+img{height:auto}
+.workbook-grid figure img{border-radius:var(--radius);box-shadow:0 44px 70px -28px rgba(0,0,0,.7)}
+.sheets{list-style:none;margin:1.6rem 0;columns:2;column-gap:2.4rem}
+.sheets li{padding:.42rem 0;color:var(--ink-72);break-inside:avoid;font-size:.99rem}
+.sheets li b{color:var(--ink);font-weight:600}
+.price-line{font-size:1.14rem;margin:1.2rem 0 1.4rem}
+.price-line b{font-size:1.5rem;font-weight:900;color:var(--gold)}
+
+/* ---------- offers ---------- */
+.offers{background:linear-gradient(180deg,var(--navy),var(--navy-2))}
+.offer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2.8rem}
+.offer{
+  padding:1.7rem 1.5rem;display:flex;flex-direction:column;gap:.7rem;
+  transition:transform .4s var(--ease),border-color .4s var(--ease);
+}
+.offer:hover{transform:translateY(-5px);border-color:rgba(240,168,55,.45)}
+.offer h3{font-size:1.12rem;line-height:1.25}
+.offer .amount{font-size:2.1rem;font-weight:900;letter-spacing:-.02em;line-height:1}
+.offer .amount small{font-size:.95rem;font-weight:600;color:var(--ink-55);letter-spacing:0}
+.offer p{font-size:.96rem;color:var(--ink-72);flex:1}
+.offer .tag{
+  align-self:flex-start;font-size:.78rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--gold);border:1px solid rgba(240,168,55,.5);border-radius:999px;padding:.28rem .7rem;
+}
+.offer .tag.soon{color:var(--ink-72);border-color:rgba(244,240,230,.25)}
+.offer .btn{width:100%;padding:.8rem 1rem;font-size:.95rem}
+.guarantee{
+  margin-top:2.4rem;display:flex;gap:1.1rem;align-items:flex-start;max-width:760px;
+}
+.guarantee svg{flex:none;margin-top:.2rem}
+.guarantee p{color:var(--ink-72)}
+.guarantee p b{color:var(--ink)}
+.standing{margin-top:1.6rem;color:var(--ink-55);font-size:.97rem}
+
+/* ---------- members ---------- */
+.members-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2rem;margin-top:2.6rem}
+.members-steps h3{margin-bottom:.5rem}
+.members-steps p{color:var(--ink-72);font-size:1rem}
+
+/* ---------- faq ---------- */
+.faq{background:var(--navy-2)}
+.faq-list{max-width:820px;margin-top:2.2rem}
+.faq-item{border-bottom:1px solid rgba(244,240,230,.1);padding:1.3rem 0}
+.faq-item:first-child{padding-top:0}
+.faq-item h3{font-size:1.08rem;margin-bottom:.4rem}
+.faq-item p{color:var(--ink-72);font-size:1rem}
+
+/* ---------- final ---------- */
+.final{text-align:center;padding:7rem 0}
+.final h2{max-width:22ch;margin-inline:auto}
+.final p{margin:0 auto 2.2rem;text-align:center}
+.final .hero-ctas{justify-content:center}
+footer{border-top:1px solid var(--glass-line);padding:2.4rem 0 3rem}
+.footer-in{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;color:var(--ink-55);font-size:.92rem}
+.footer-in a{color:var(--ink-55)}
+.footer-in a:hover{color:var(--gold)}
+
+/* ---------- reveal (one authored motion, visible by default) ---------- */
+.js .reveal{opacity:0;transform:translateY(26px);filter:blur(6px)}
+.js .reveal.in{opacity:1;transform:none;filter:none;transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js .reveal{opacity:1;transform:none;filter:none}
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1020px){
+  .offer-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-grid,.story-grid,.workbook-grid,.free-panel{grid-template-columns:1fr}
+  .hero-book img{width:min(320px,80%)}
+  .hero{padding-top:3rem}
+}
+@media (max-width:640px){
+  section{padding:4.2rem 0}
+  .plan-steps,.members-steps{grid-template-columns:1fr}
+  .offer-grid{grid-template-columns:1fr}
+  .sheets{columns:1}
+  .header-links .btn-ghost{display:none}
+  .ledger td{padding:.8rem 1rem;font-size:.97rem}
+  .ledger td:first-child{padding-right:.5rem}
+}
+</style>
+
+<header>
+  <div class="wrap header-in">
+    <a class="wordmark" href="#top">THE FOCUS <span>ADVANTAGE</span></a>
+    <nav class="header-links" aria-label="Page">
+      <a class="btn btn-ghost btn-small" href="#free">Start free</a>
+      <a class="btn btn-gold btn-small" href="#offers">Get the book</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Get back the hours distraction takes from your day.</h1>
+      <p class="lede">The Focus Advantage is a system for getting your attention back. You choose one thing in advance. You build a morning that protects it, a week built around it, and a short review that catches the drift while the drift is still small.</p>
+      <div class="hero-ctas">
+        <!-- CHECKOUT: Book + All Resources bundle, $49.99 USD — wire to the app checkout route. Placeholder link; no payment URL exists yet. -->
+        <a class="btn btn-gold" href="#" data-offer="Book + All Resources — $49.99">Get the ebook + resources</a>
+        <a class="btn btn-ghost" href="#free">Start free: get the Toolkit</a>
+      </div>
+      <p class="hero-facts"><b>By Deimira Baidoo</b> · 12 chapters · Ebook <b>$9.99</b> · Paperback <b>$19.99</b> · Free tools with email signup, no card</p>
+    </div>
+    <div class="hero-book">
+      <img src="/book/assets/hero-book-display.jpg" alt="The Focus Advantage by Deimira Baidoo, the book, floating against a dark background" width="900" height="1355" fetchpriority="high">
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE COST ================= -->
+<section class="cost">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>First, see what a scattered mind costs.</h2>
+      <p class="lede">Chapter Two shows you how to put a number on it. Here is the book's own worked example: a freelance designer who loses two hours of a typical workday to half-read email, abandoned tasks, feeds, and recovering after interruptions. She earns about $100,000 a year, or $50 an hour.</p>
+      <div class="ledger">
+        <table>
+          <tr><td>Hours lost per day</td><td>2</td></tr>
+          <tr><td>Hours lost per week</td><td>10</td></tr>
+          <tr><td>Hours lost per year</td><td>480, about 500</td></tr>
+          <tr><td>Workdays lost per year</td><td>60</td></tr>
+          <tr><td>Cost per year, at $50 an hour</td><td>$24,000</td></tr>
+          <tr class="total"><td>Cost over ten years</td><td>$240,000</td></tr>
+        </table>
+      </div>
+      <div class="cta-row">
+        <p class="dim" style="max-width:44ch">Your number will differ. Be honest. A flattering number helps no one. Worksheet 1 runs the same math on your day, in about ten minutes.</p>
+        <a class="btn btn-ghost" href="#free">Do your own math, free</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE GUIDE / STORY ================= -->
+<section>
+  <div class="wrap story-grid">
+    <div class="story reveal">
+      <h2>“My problem was never effort. It was architecture.”</h2>
+      <p>In August 2012, Deimira Baidoo went back to Ghana, where he was born, and set up a gold business. It went terribly badly. He came back to Canada with about four hundred dollars to his name. He was down, depressed, and working at a bank, where he was working very hard just to stay afloat and achieving very little of what mattered.</p>
+      <p><strong>He had plenty of drive, but it was scattered.</strong> He was trying to do too many things at once. It looked like ambition. It kept the important things from getting done.</p>
+      <p class="pull">Trying harder would not fix it. <em>He needed a different structure.</em></p>
+      <p>This book is that structure: how a mind is designed, how an environment is designed, and what happens when the two meet. Twelve chapters, from seeing the cost to living the focused life.</p>
+    </div>
+    <div class="reveal">
+      <h3 style="margin-bottom:1rem">Inside the book</h3>
+      <ol class="chapters">
+        <li>Your Brain on Distraction</li>
+        <li>The Hidden Cost of a Scattered Mind</li>
+        <li>The Myth of Multitasking</li>
+        <li>The One Thing Before Everything Else</li>
+        <li>Engineering Your Environment</li>
+        <li>The Morning Lock-In Protocol</li>
+        <li>Time Blocking That Works</li>
+        <li>Taming the Digital Flood</li>
+        <li>The Single-Tasking Habit</li>
+        <li>Fueling Focus: Energy Management for Sustained Performance</li>
+        <li>Sustaining the System: The Weekly Review and Long-Term Momentum</li>
+        <li>The Focused Life: What Changes When You Reclaim Your Attention</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE PLAN ================= -->
+<section class="plan">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>The plan is three steps. Keeping it is the work.</h2>
+      <p class="lede">Focus comes from a few choices you make once, in advance, so you stop making them under pressure.</p>
+      <div class="plan-steps">
+        <div class="plan-step">
+          <div class="num">1</div>
+          <h3>Read the book</h3>
+          <p>See what distraction is actually costing you. Choose your one thing, the priority that makes the rest easier or unnecessary. Build the structures that protect it.</p>
+        </div>
+        <div class="plan-step">
+          <div class="num">2</div>
+          <h3>Work the sheets</h3>
+          <p>Ten worksheets follow the chapters, and a 30-day roadmap tells you which one to do on which day. The book gives you the system. The workbook is where the system gets done.</p>
+        </div>
+        <div class="plan-step">
+          <div class="num">3</div>
+          <h3>Run the rhythm</h3>
+          <p>Five minutes each evening to design tomorrow. The Morning Lock-In to start the day on your one thing. One weekly sitting to review, realign, and design the week ahead.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FREE ================= -->
+<section class="free" id="free">
+  <div class="wrap">
+    <div class="glass free-panel reveal">
+      <div>
+        <h2>Start free. The book's own tools, in your inbox.</h2>
+        <p class="dim">The printed book promises every reader a free Quick-Start Toolkit. Here it is, plus Worksheet 1, so you can put your own number on the problem before you spend a cent.</p>
+        <ul class="free-list">
+          <li><b>The Morning Lock-In Planner</b>: the five-element morning, on one page (Chapter Six)</li>
+          <li><b>The Time-Blocking Weekly Planner</b>: design the week before the week designs you (Chapter Seven)</li>
+          <li><b>The Weekly Review Checklist</b>: the five phases, on one page (Chapter Eleven)</li>
+          <li><b>Worksheet 1: What Distraction Is Costing You</b>: your hours, your workdays, your dollars (Chapter Two)</li>
+          <li><b>30 days of the Focus Advantage web app, free.</b> The same signup starts your 30 days. No code to type.</li>
+        </ul>
+      </div>
+      <div class="signup">
+        <!-- SIGNUP: wire this form to the Systeme.io free-signup endpoint for focusadvantage.io. On submit it must create the members account automatically, open the Toolkit + Worksheet 1 inside it, and start the 30 free app days. Placeholder action in this build — no endpoint wired yet. -->
+        <form id="free-form" action="#" method="post" data-signup="systeme-free" novalidate>
+          <label for="free-email">Where should we send the free tools?</label>
+          <div class="signup-row">
+            <input type="email" id="free-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            <button class="btn btn-gold" type="submit">Send me the free tools</button>
+          </div>
+          <p class="form-msg error" id="form-error" aria-live="assertive" data-msg="That email address doesn't look complete. Check it and try again."></p>
+          <p class="form-msg ok" id="form-ok" aria-live="polite" data-msg="Done. Check your inbox. Your members account is created and the free tools are open inside it."></p>
+          <p class="form-note">One email address. No payment, no card. Your free members account is created automatically, and the free tools are waiting inside it.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE WORKBOOK ================= -->
+<section>
+  <div class="wrap workbook-grid">
+    <figure class="reveal">
+      <img src="/book/assets/book-on-desk-display.jpg" alt="The Focus Advantage on a desk, ready to work from" width="896" height="1200" loading="lazy">
+    </figure>
+    <div class="reveal">
+      <h2>The Workbook: where the system gets done.</h2>
+      <p class="dim">Ten worksheets that match the chapters, each opening with what it does and why, most taking ten to twenty minutes. Around them: a journal page for every chapter, the 30-day roadmap, reset pages for Day 60 and Day 90, a restart page for the week you miss, and the whole system on one wall card. Print the pages and write by hand, or fill them in on a screen. Paper works. What matters is that the answers exist somewhere outside your head.</p>
+      <ul class="sheets">
+        <li><b>1.</b> What Distraction Is Costing You <span class="small">(free, above)</span></li>
+        <li><b>2.</b> Find Your One Thing</li>
+        <li><b>3.</b> The Environment Audit</li>
+        <li><b>4.</b> The Morning Lock-In Planner</li>
+        <li><b>5.</b> The Time-Blocked Week</li>
+        <li><b>6.</b> The Notification Audit and Digital Protocol</li>
+        <li><b>7.</b> The Tell-People Script</li>
+        <li><b>8.</b> The Single-Tasking Training Log</li>
+        <li><b>9.</b> The Energy Audit</li>
+        <li><b>10.</b> The Five-Phase Weekly Review</li>
+      </ul>
+      <p class="price-line">The complete set, all ten worksheets and every companion page: <b>$27</b>. The worksheets are sold as a set, because the system works as a set.</p>
+      <p class="dim" style="margin-bottom:1.4rem">Already bought the book on Amazon? This is your bundle. The book isn't in it, because you already own it.</p>
+      <!-- CHECKOUT: Worksheets & Templates set, $27 USD — wire to the app checkout route. Placeholder link; no payment URL exists yet. -->
+      <a class="btn btn-gold" href="#" data-offer="Worksheets &amp; Templates set — $27">Get the Workbook: $27</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OFFERS ================= -->
+<section class="offers" id="offers">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>Choose how far you go.</h2>
+      <p class="lede">Every paid offer opens inside the same members library as your free tools. Buy once, and it is simply there.</p>
+      <div class="offer-grid">
+
+        <div class="glass offer">
+          <h3>Worksheets &amp; Templates</h3>
+          <div class="amount">$27</div>
+          <p>All ten worksheets, the chapter journal, the 30-day roadmap, the reset and restart pages, and the wall card. For readers who already own the book.</p>
+          <!-- CHECKOUT: Worksheets & Templates set, $27 USD — wire to the app checkout route. Placeholder link; no payment URL exists yet. -->
+          <a class="btn btn-ghost" href="#" data-offer="Worksheets &amp; Templates set — $27">Get the worksheets</a>
+        </div>
+
+        <div class="glass offer">
+          <span class="tag">The complete system</span>
+          <h3>Book + All Resources</h3>
+          <div class="amount">$49.99</div>
+          <p>The ebook, the Quick-Start Toolkit, and the complete Workbook: the book and everything built to work it. Nothing held back.</p>
+          <!-- CHECKOUT: Book + All Resources bundle, $49.99 USD — wire to the app checkout route. Placeholder link; no payment URL exists yet. -->
+          <a class="btn btn-gold" href="#" data-offer="Book + All Resources — $49.99">Get book + resources</a>
+        </div>
+
+        <div class="glass offer">
+          <span class="tag soon">Goes live with the web app</span>
+          <h3>Worksheets + App</h3>
+          <div class="amount">$119.99 <small>/ 12 months of the app</small></div>
+          <p>The complete Workbook plus a full year of the Focus Advantage app, for readers who own the book and would rather run the protocols on their phone.</p>
+          <!-- APP BUNDLE: not purchasable until the phone-usable web app lands (Deimira, ETA ~Nov 21). Button intentionally disabled; wire checkout only when the app is live. -->
+          <a class="btn" aria-disabled="true" data-app-bundle="worksheets-app">Available when the app lands</a>
+        </div>
+
+        <div class="glass offer">
+          <span class="tag soon">Goes live with the web app</span>
+          <h3>Everything + App</h3>
+          <div class="amount">$139.99 <small>/ 12 months of the app</small></div>
+          <p>The ebook, the Toolkit, the complete Workbook, and a full year of the app. The whole system, on paper and on your phone.</p>
+          <!-- APP BUNDLE: not purchasable until the phone-usable web app lands (Deimira, ETA ~Nov 21). Button intentionally disabled; wire checkout only when the app is live. -->
+          <a class="btn" aria-disabled="true" data-app-bundle="everything-app">Available when the app lands</a>
+        </div>
+
+      </div>
+
+      <div class="guarantee">
+        <svg width="34" height="38" viewBox="0 0 34 38" fill="none" aria-hidden="true"><path d="M17 1 32 6v11c0 9.5-6.4 16.4-15 20C8.4 33.4 2 26.5 2 17V6L17 1Z" stroke="#f0a837" stroke-width="2.4"/><path d="M11 19.2 15.2 23 23 13.5" stroke="#f0a837" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><b>A 30-day money-back guarantee covers every paid offer.</b> Work the system for a month. If it isn't for you, email us within 30 days of purchase and we refund you in full. No forms, no argument.</p>
+      </div>
+
+      <p class="standing">The book on its own: ebook $9.99 · paperback $19.99. The app on its own: $9.99 a month, and your first 30 days are free when you sign up above, no code needed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MEMBERS AREA ================= -->
+<section>
+  <div class="wrap">
+    <div class="reveal">
+      <h2>One library. Everything you own, in one place.</h2>
+      <p class="lede">No downloads to lose, no links to dig out of old emails. Your Focus Advantage resources live in a members area, and it starts free.</p>
+      <div class="members-steps">
+        <div>
+          <h3>Sign up free</h3>
+          <p>Your email address creates your members account automatically. No payment, no code, nothing to install.</p>
+        </div>
+        <div>
+          <h3>Your free tools are open</h3>
+          <p>The Quick-Start Toolkit and the Distraction Cost Calculator are waiting inside, and your 30 free days of the app start with the same signup.</p>
+        </div>
+        <div>
+          <h3>Paid tools unlock in place</h3>
+          <p>Buy the Workbook or a bundle and it opens in the same library, on the same login. What you own is what you see.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>Questions, answered plainly.</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3>I already bought the book on Amazon. What should I get?</h3>
+          <p>The Worksheets &amp; Templates set at $27, or Worksheets + App at $119.99 once the app lands. You already own the book. Don't buy it twice.</p>
+        </div>
+        <div class="faq-item">
+          <h3>When does the app arrive?</h3>
+          <p>The phone-usable web version of the Focus Advantage app is landing now. The two app bundles switch on the day it goes live, and your free 30 days run from your signup. That is the same promise printed in the book.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Do the worksheets work on paper or on a screen?</h3>
+          <p>Both. Print the pages and write by hand, or fill them in on a screen. Paper works. A notebook works. What matters is that the answers exist somewhere outside your head.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What if it isn't for me?</h3>
+          <p>Every paid offer carries the 30-day money-back guarantee above. Work the system for a month; if it isn't for you, you don't pay for it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final">
+  <div class="wrap reveal">
+    <h2>In the book's worked example, two hours a day comes to about 500 hours a year. Start getting yours back.</h2>
+    <p class="lede">Read the book. Work the sheets. Run the rhythm. The first step costs nothing.</p>
+    <div class="hero-ctas">
+      <!-- CHECKOUT: Book + All Resources bundle, $49.99 USD — wire to the app checkout route. Placeholder link; no payment URL exists yet. -->
+      <a class="btn btn-gold" href="#" data-offer="Book + All Resources — $49.99">Get the ebook and all resources: $49.99</a>
+      <a class="btn btn-ghost" href="#free">Start free</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-in">
+    <span>The Focus Advantage © Deimira Baidoo</span>
+    <span>This page is the companion to the printed book. The QR code in your copy points here.</span>
+    <span><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+    <span>focusadvantage.io/book</span>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+
+/* Reveal on scroll — one authored motion; content is visible if JS never runs. */
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in')}); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  },{threshold:.12});
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* Free signup — validates locally. Submission target is the Systeme.io endpoint
+   marked with the SIGNUP comment on the form; until it is wired, the success
+   state is shown so the flow can be reviewed end to end. */
+(function(){
+  var form = document.getElementById('free-form');
+  if(!form) return;
+  var email = document.getElementById('free-email');
+  var err = document.getElementById('form-error');
+  var ok = document.getElementById('form-ok');
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var v = (email.value || '').trim();
+    var valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    err.textContent = valid ? '' : err.getAttribute('data-msg');
+    ok.textContent = valid ? ok.getAttribute('data-msg') : '';
+    if(!valid){ email.focus(); return; }
+    form.setAttribute('data-submitted','true');
+  });
+  email.addEventListener('input', function(){ err.textContent=''; });
+})();
+
+/* Checkout placeholders — buttons carry data-offer until the app checkout route
+   is wired (see CHECKOUT comments in the markup). They never navigate. */
+document.querySelectorAll('[data-offer],[data-app-bundle]').forEach(function(b){
+  b.addEventListener('click', function(ev){ ev.preventDefault(); });
+});
+</script>
+</body>
+</html>

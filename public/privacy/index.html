@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — The Focus Advantage | Deimira Baidoo</title>
+<meta name="description" content="How The Focus Advantage (focusadvantage.io) collects, uses, and protects your information.">
+<!--
+  DRAFT — Nov 23, 2026. Not yet published. Placeholders to confirm before go-live:
+  1. CONTACT EMAIL: this page uses hello@focusadvantage.io — confirm that mailbox
+     exists and is monitored before publishing.
+  2. EFFECTIVE DATE: set "Last updated" to the actual go-live date.
+  3. SERVICE PROVIDERS: page names Systeme.io (members area) and Stripe
+     (checkout) because those are the platforms in use. If either changes,
+     update section 4.
+  4. No analytics or advertising trackers are named because none are confirmed
+     installed on this page. If any are added later, they must be disclosed here.
+  Deployment: per LAUNCH-PREP-NOV23.md this file ships as
+  public/privacy/index.html so it serves at /privacy.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#081426;
+  --navy-2:#0b1c36;
+  --navy-3:#10264a;
+  --ink:#f4f0e6;
+  --ink-72:rgba(244,240,230,.72);
+  --ink-55:rgba(244,240,230,.55);
+  --gold:#f0a837;
+  --gold-deep:#c07f13;
+  --gold-ink:#1a1206;
+  --glass-line:rgba(244,240,230,.14);
+  --radius:16px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--navy);
+  color:var(--ink);
+  font-family:"Libre Franklin",system-ui,sans-serif;
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--gold);color:var(--gold-ink)}
+a{color:var(--gold)}
+a:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1180px,100% - 3rem);margin-inline:auto}
+h1,h2{font-weight:900;line-height:1.12;letter-spacing:-.02em;text-wrap:balance}
+h1{font-size:clamp(2.1rem,4.4vw,3.2rem);margin-bottom:.8rem}
+h2{font-size:1.35rem;margin:2.4rem 0 .7rem}
+p{max-width:68ch;color:var(--ink-72);margin-bottom:1rem}
+p strong,li strong{color:var(--ink)}
+ul{max-width:68ch;color:var(--ink-72);margin:0 0 1rem 1.3rem}
+li{margin-bottom:.45rem}
+.dim{color:var(--ink-72)}
+.small{font-size:.92rem;color:var(--ink-55)}
+
+/* ---------- header (matches build/index.html) ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,20,38,.82);
+  backdrop-filter:blur(16px) saturate(1.4);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border-bottom:1px solid var(--glass-line);
+}
+.header-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0}
+.wordmark{font-weight:900;letter-spacing:.14em;font-size:.86rem;text-decoration:none;white-space:nowrap;color:var(--ink)}
+.wordmark span{color:var(--gold)}
+.wordmark:hover{color:var(--ink)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  font-weight:800;font-size:.9rem;letter-spacing:.01em;text-decoration:none;
+  padding:.6rem 1.15rem;border-radius:999px;border:1px solid transparent;
+  cursor:pointer;transition:transform .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease);
+  font-family:inherit;
+}
+.btn-ghost{background:transparent;color:var(--ink);border-color:rgba(244,240,230,.35)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+
+/* ---------- legal body ---------- */
+.legal{padding:4.5rem 0 5.5rem;max-width:820px}
+.legal .updated{color:var(--ink-55);font-size:.95rem;margin-bottom:2.2rem}
+
+/* ---------- footer (matches build/index.html) ---------- */
+footer{border-top:1px solid var(--glass-line);padding:2.4rem 0 3rem}
+.footer-in{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;color:var(--ink-55);font-size:.92rem}
+.footer-in a{color:var(--ink-55)}
+.footer-in a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-in">
+    <a class="wordmark" href="/book">THE FOCUS <span>ADVANTAGE</span></a>
+    <nav class="header-links" aria-label="Page">
+      <a class="btn btn-ghost" href="/book">Back to the book</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap legal">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: November 23, 2026</p>
+
+    <p>This policy explains what information is collected when you use <strong>focusadvantage.io</strong> and the Focus Advantage members area, and what happens to it. The Focus Advantage is a book and set of digital resources by <strong>Deimira Baidoo</strong>, who is the publisher and the person responsible for your information under this policy.</p>
+
+    <h2>1. What we collect</h2>
+    <ul>
+      <li><strong>Your email address</strong> — when you sign up for the free Quick-Start Toolkit and Worksheet 1, or create a members account. Your email address is also your login for the members area.</li>
+      <li><strong>Purchase information</strong> — when you buy a product, checkout is handled by <strong>Stripe</strong>. Stripe collects your payment details directly; we never see or store your full card number. We receive confirmation of your purchase and the email address attached to it so we can open your products in the members area.</li>
+      <li><strong>Members-area activity</strong> — the members area (hosted on <strong>Systeme.io</strong>) keeps the records needed to run your account: which products you own, and sign-in activity.</li>
+      <li><strong>Basic technical information</strong> — like most websites, the site keeps standard server logs (such as pages requested and browser type) and uses cookies that are necessary for the site and members area to work, including keeping you signed in.</li>
+    </ul>
+    <p>We do not collect information we do not need, and we do not ask for payment details anywhere except Stripe's checkout.</p>
+
+    <h2>2. How we use it</h2>
+    <ul>
+      <li>To send you the free tools you signed up for and create your members account.</li>
+      <li>To give you access to products you have bought.</li>
+      <li>To answer you when you contact us.</li>
+      <li>To send occasional emails about The Focus Advantage — new resources, updates, and related offers. Every such email carries an unsubscribe link, and unsubscribing stops them.</li>
+    </ul>
+
+    <h2>3. What we never do</h2>
+    <p>We do not sell your personal information. We do not rent it, trade it, or share it for anyone else's marketing.</p>
+
+    <h2>4. Who processes it</h2>
+    <p>Two service providers handle information on our behalf, only to run the services described here:</p>
+    <ul>
+      <li><strong>Systeme.io</strong> — hosts the members area and sends account and product emails.</li>
+      <li><strong>Stripe</strong> — processes payments. Your payment information is governed by Stripe's own privacy policy at checkout.</li>
+    </ul>
+
+    <h2>5. How long we keep it</h2>
+    <p>We keep your account information while your members account is active, so your products stay available to you. If you ask us to delete your account, we will remove your personal information except anything we are required to keep for accounting or legal reasons (for example, purchase records).</p>
+
+    <h2>6. Your choices</h2>
+    <ul>
+      <li><strong>Unsubscribe</strong> from marketing emails at any time using the link in any email.</li>
+      <li><strong>Access, correct, or delete</strong> your information — email us and we will action your request.</li>
+      <li><strong>Cookies</strong> — you can block cookies in your browser; the public pages will still work, though the members area may not keep you signed in.</li>
+    </ul>
+
+    <h2>7. Changes to this policy</h2>
+    <p>If this policy changes in a way that matters, we will update the date at the top of this page and, where the change affects members, note it by email.</p>
+
+    <h2>8. Contact</h2>
+    <p>Questions about your privacy or your information: <a href="mailto:hello@focusadvantage.io">hello@focusadvantage.io</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-in">
+    <span>The Focus Advantage © Deimira Baidoo</span>
+    <span><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+    <span>focusadvantage.io/book</span>
+  </div>
+</footer>
+
+</body>
+</html>
